@@ -11,11 +11,11 @@
 IntSliderControl Amount1 = 5; // [0,100] Filter Radius
 #endregion
 
-void Render(Surface dst, Surface src, Rectangle rect)
+float[,] dilateWeights;
+
+void PreRender(Surface dst, Surface src)
 {
     int radius = Amount1;
-    float[,] dilateWeights;
-    
     dilateWeights = (float[,])Array.CreateInstance(typeof(float), new int[] { radius * 2 + 1, radius * 2 + 1 }, new int[] { -radius, -radius });
     for (int dy = -radius; dy <= radius; ++dy) 
     {
@@ -36,12 +36,19 @@ void Render(Surface dst, Surface src, Rectangle rect)
             }
         }
     }
+}
+
+void Render(Surface dst, Surface src, Rectangle rect)
+{
+    int radius = Amount1;
     
     // Delete any of these lines you don't need
     Rectangle selection = EnvironmentParameters.GetSelection(src.Bounds).GetBoundsInt();
     ColorBgra CurrentPixel;
      for (int y = rect.Top; y < rect.Bottom; ++y) 
      {
+        if (IsCancelRequested)
+            return;
         for (int x = rect.Left; x < rect.Right; ++x) 
         {
             // RGB Luminance value   =   0.3 R + 0.59 G + 0.11 B
